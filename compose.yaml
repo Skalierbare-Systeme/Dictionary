@@ -1,0 +1,24 @@
+services:
+  dictionary-service:
+    build:
+      context: .
+    ports:
+      - "5000:5000"
+    tty: true
+    stdin_open: true
+    environment:
+      REDIS_IP: "redis-db"
+      REDIS_PORT: "6379"
+      FLASK_APP: "src.app"
+
+  redis-db:
+    image: redis:latest
+    ports:
+      - "15000:6379"
+    tty: true
+    stdin_open: true
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
