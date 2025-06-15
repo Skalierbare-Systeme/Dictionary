@@ -10,7 +10,9 @@ services:
       REDIS_IP: "redis-db"
       REDIS_PORT: "6379"
       FLASK_APP: "src.app"
-
+  networks:
+      - shared-network
+      - dictionary-network
   redis-db:
     image: redis:latest
     ports:
@@ -19,6 +21,13 @@ services:
     stdin_open: true
     volumes:
       - redis-data:/data
+    networks:
+      - dictionary-network
 
 volumes:
   redis-data:
+networks:
+  dictionary-network:
+    driver: bridge
+  shared-network:
+    external: true
