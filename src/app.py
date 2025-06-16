@@ -44,15 +44,40 @@ def add_ingredient():
     return jsonify({'success': 'Ingredient was added to Database'}), 200
 
 
+
+
 @app.route('/ingredient', methods=['GET'])
 def get_multiple_ingredients():
+    # Example: /ingredient?ingredient_names=a&ingredient_names=sea
+    # keys will be ['a', 'sea']
     keys = request.args.getlist('ingredient_names')
+    
     try:
-        ingredient = get_multiple_pairs(connect_to_redis(), keys)
+        # Let's assume get_multiple_pairs returns a list, which may contain
+        # Ingredient objects or None for keys that were not found.
+        # e.g., [Ingredient('a', '...'), Ingredient('sea', '...')]
+        ingredient_objects = get_multiple_pairs(connect_to_redis(), keys)
+
+        # --- THIS IS THE CRITICAL FIX ---
+        # We now create an empty dictionary that will be sent as JSON.
+        response_dictionary = {}
+
+        # We loop through the Ingredient objects we got from the database.
+        for ingredient in ingredient_objects:
+            # We must check if the ingredient is a valid object and not None.
+            if ingredient and hasattr(ingredient, 'ingredient_name'):
+                # We build the dictionary in the format the frontend wants: { "word": "definition" }
+                response_dictionary[ingredient.ingredient_name] = ingredient.ingredient_definition
+        
+        # Now, we pass the simple, serializable dictionary to jsonify.
+        return jsonify(response_dictionary), 200
 
     except RedisError as e:
         return jsonify({'error': str(e)}), 404
-    return jsonify(ingredient.__dict__), 200
+    except Exception as e:
+        # This will catch the 'not JSON serializable' error and others.
+        return jsonify({'error': f"An unexpected error occurred: {str(e)}"}), 500
+
 
 
 if __name__ == '__main__':
