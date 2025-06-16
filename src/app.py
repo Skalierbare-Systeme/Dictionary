@@ -3,9 +3,9 @@ from redis import RedisError
 
 from src.redis_client import connect_to_redis, add_new_pair, get_pair, delete_pair, get_multiple_pairs
 from src.models import Ingredient
-
+from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app) 
 
 @app.route('/')
 def hello_world():
