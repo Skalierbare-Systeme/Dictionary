@@ -10,7 +10,7 @@ services:
       REDIS_IP: "redis-db"
       REDIS_PORT: "6379"
       FLASK_APP: "src.app"
-  networks:
+    networks:
       - shared-network
       - dictionary-network
   redis-db:
